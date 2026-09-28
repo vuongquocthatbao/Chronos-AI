@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronos AI - Loại bỏ Sức ì, Cầm tay Chỉ việc</title>
+    <meta name="description" content="Chronos AI: Ứng dụng quản lý thời gian SPA PWA với AI Gemini, tự động xây dựng lộ trình, chia nhỏ tác vụ và hướng dẫn chi tiết.">
+    <meta name="theme-color" content="#1a202c">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- CDN: Tailwind CSS v3.x (with JIT for optimal performance) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CDN: Font Awesome v6.x (for professional icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- CDN: Google Fonts - Inter (sans-serif) & Roboto Mono (monospace) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Tailwind CSS Configuration & Customizations */
+        tailwind.config = {
+            darkMode: 'class', /* Enable dark mode based on 'dark' class on <html> */
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1', /* Indigo 500 */
+                        'primary-hover': '#4f46e5', /* Indigo 600 */
+                        accent: '#0ea5e9', /* Sky 500 */
+                        success: '#22c55e', /* Green 500 */
+                        warning: '#f59e0b', /* Amber 500 */
+                        danger: '#ef4444', /* Red 500 */
+                        /* Custom shades for background/text in dark/light mode */
+                        'bg-dark': '#0f172a', /* Slate 900 */
+                        'bg-surface-dark': '#1e293b', /* Slate 800 */
+                        'bg-card-dark': '#334155', /* Slate 700 */
+                        'border-dark': '#475569', /* Slate 600 */
+                        'text-light': '#f8fafc', /* Slate 50 */
+                        'text-muted-dark': '#94a3b8', /* Slate 400 */
+
+                        'bg-light': '#f8fafc', /* Slate 50 */
+                        'bg-surface-light': '#ffffff', /* White */
+                        'bg-card-light': '#f1f5f9', /* Slate 100 */
+                        'border-light': '#e2e8f0', /* Slate 200 */
+                        'text-dark': '#0f172a', /* Slate 900 */
+                        'text-muted-light': '#64748b', /* Slate 500 */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                    borderRadius: {
+                        'sm': '8px',
+                        'md': '12px',
+                        'lg': '16px',
+                    },
+                    boxShadow: {
+                        'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12)',
+                        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.4)',
+                    },
+                    animation: {
+                        'pulse-bg': 'pulse-bg 10s infinite alternate',
+                        'pulse-dot': 'pulse-dot 2s infinite',
+                    },
+                    keyframes: {
+                        'pulse-bg': {
+                            '0%, 100%': { transform: 'scale(1)', opacity: '0.5' },
+                            '50%': { transform: 'scale(1.2)', opacity: '0.8' },
+                        },
+                        'pulse-dot': {
+                            '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+                            '50%': { opacity: '0.4', transform: 'scale(0.85)' },
+                        }
+                    }
+                },
+            },
+        };
+
+        /* Base styles for dark mode */
+        html {
+            @apply bg-bg-dark text-text-light;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* Light mode styles */
+        html.light {
+            @apply bg-bg-light text-text-dark;
+        }
+
+        /* General element resets/overrides */
+        body {
+            @apply min-h-screen flex flex-col overflow-x-hidden;
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.bg-surface-dark');
+            border-radius: theme('borderRadius.md');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.primary');
+            border-radius: theme('borderRadius.md');
+            border: 2px solid theme('colors.bg-surface-dark');
+        }
+        html.light ::-webkit-scrollbar-track {
+            background: theme('colors.bg-surface-light');
+        }
+        html.light ::-webkit-scrollbar-thumb {
+            background: theme('colors.primary');
+            border: 2px solid theme('colors.bg-surface-light');
+        }
+
+        /* Dialog backdrop styling */
+        dialog::backdrop {
+            @apply bg-bg-dark/75 backdrop-blur-sm;
+        }
+
+        /* Custom styles for active navigation link */
+        .nav-link.active {
+            @apply bg-primary text-white;
+        }
+        .nav-link.active:hover {
+            @apply bg-primary-hover;
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <header class="app-header sticky top-0 z-50 bg-bg-surface-dark/90 light:bg-bg-surface-light/90 backdrop-blur-md border-b border-border-dark light:border-border-light">
+        <div class="header-container max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
+            <div class="brand-cluster flex items-center gap-3">
+                <div class="brand-logo w-9 h-9 bg-gradient-to-br from-primary to-accent rounded-sm grid place-items-center text-white text-lg shadow-md shadow-primary/40" aria-hidden="true">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div class="brand-text">
+                    <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-300 to-sky-300 bg-clip-text text-transparent">Chronos AI</h1>
+                </div>
+            </div>
+
+            <nav class="nav-bar flex gap-2 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto justify-center" aria-label="Menu chính">
+                <button class="nav-link px-3 py-2 text-sm font-medium text-text-muted-dark light:text-text-muted-light rounded-sm hover:bg-bg-card-dark light:hover:bg-bg-card-light hover:text-text-light light:hover:text-text-dark transition-colors flex items-center gap-2" data-view="focus" id="nav-focus">
+                    <i class="fa-solid fa-bullseye"></i> Tập trung
+                </button>
+                <button class="nav-link px-3 py-2 text-sm font-medium text-text-muted-dark light:text-text-muted-light rounded-sm hover:bg-bg-card-dark light:hover:bg-bg-card-light hover:text-text-light light:hover:text-text-dark transition-colors flex items-center gap-2" data-view="kanban" id="nav-kanban">
+                    <i class="fa-solid fa-table-columns"></i> Kanban
+                </button>
+                <button class="nav-link px-3 py-2 text-sm font-medium text-text-muted-dark light:text-text-muted-light rounded-sm hover:bg-bg-card-dark light:hover:bg-bg-card-light hover:text-text-light light:hover:text-text-dark transition-colors flex items-center gap-2" data-view="calendar" id="nav-calendar">
+                    <i class="fa-solid fa-calendar-days"></i> Lịch
+                </button>
+                <button class="nav-link px-3 py-2 text-sm font-medium text-text-muted-dark light:text-text-muted-light rounded-sm hover:bg-bg-card-dark light:hover:bg-bg-card-light hover:text-text-light light:hover:text-text-dark transition-colors flex items-center gap-2" data-view="goals" id="nav-goals">
+                    <i class="fa-solid fa-trophy"></i> Mục tiêu
+                </button>
+                <button class="nav-link px-3 py-2 text-sm font-medium text-text-muted-dark light:text-text-muted-light rounded-sm hover:bg-bg-card-dark light:hover:bg-bg-card-light hover:text-text-light light:hover:text-text-dark transition-colors flex items-center gap-2" data-view="settings" id="nav-settings">
+                    <i class="fa-solid fa-gear"></i> Cài đặt
+                </button>
+            </nav>
+
+            <div class="header-actions flex items-center gap-3 w-full sm:w-auto justify-center sm:justify-end">
+                <button class="btn-primary px-4 py-2 text-sm font-medium rounded-sm transition-colors flex items-center gap-2" id="btn-create-goal">
+                    <i class="fa-solid fa-plus"></i> Mục tiêu mới
+                </button>
+                <button class="btn-secondary px-3 py-2 text-sm font-medium rounded-sm transition-colors flex items-center gap-2" id="btn-toggle-theme" title="Chuyển đổi chế độ sáng/tối">
+                    <i class="fa-solid fa-moon dark:block light:hidden"></i>
+                    <i class="fa-solid fa-sun light:block dark:hidden"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="app-root" class="max-w-6xl mx-auto px-4 py-6 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Cột Chính: Focus View / Kanban / Calendar / Goals / Settings -->
+        <section class="main-content-area lg:col-span-2 flex flex-col gap-6">
+            <!-- VIEW: FOCUS (Mặc định) -->
+            <div id="focus-view">
+                <div class="current-task-card relative overflow-hidden rounded-lg p-8 text-center shadow-md bg-gradient-to-br from-bg-surface-dark to-bg-card-dark light:from-bg-surface-light light:to-bg-card-light border border-primary">
+                    <div class="current-task-content relative z-10">
+                        <p class="current-task-status text-sm font-semibold uppercase tracking-wider text-accent mb-2" id="focus-task-status">SẴN SÀNG HÀNH ĐỘNG</p>
+                        <h2 class="current-task-title text-4xl font-bold leading-tight mb-4 text-text-light light:text-text-dark drop-shadow-lg" id="focus-task-title">Chưa có tác vụ nào được lên lịch. Hãy tạo mục tiêu mới!</h2>
+                        <div class="pomodoro-mode text-base uppercase tracking-wider text-text-muted-dark light:text-text-muted-light font-semibold mb-2" id="pomodoro-mode-label">TẬP TRUNG CAO ĐỘ</div>
+                        <div class="pomodoro-display font-mono text-6xl font-bold text-accent tracking-tighter mt-4 drop-shadow-xl" id="pomodoro-timer-text">00:00</div>
+                        <div class="focus-controls flex justify-center gap-4 mt-8">
+                            <button class="btn-primary px-6 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2" id="pomo-start-pause">
+                                <i class="fa-solid fa-play"></i> Bắt đầu
+                            </button>
+                            <button class="btn-secondary px-6 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2" id="pomo-reset">
+                                <i class="fa-solid fa-rotate-right"></i> Đặt lại
+                            </button>
+                            <button class="btn-secondary px-6 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2" id="pomo-skip">
+                                <i class="fa-solid fa-forward"></i> Bỏ qua
+                            </button>
+                            <button class="btn-success px-6 py-3 text-base font-medium rounded-md transition-colors flex items-center gap-2 hidden" id="btn-complete-task">
+                                <i class="fa-solid fa-check-circle"></i> Hoàn thành
+                            </button>
+                        </div>
+                    </div>
+                    <div class="current-task-instructions hidden bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light rounded-md p-6 text-left mt-6" id="focus-task-instructions-container">
+                        <h3 class="text-lg font-semibold text-primary mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-lightbulb"></i> Hướng dẫn chi tiết từ AI
+                        </h3>
+                        <ul class="instruction-list list-none p-0 m-0" id="ai-instruction-list">
+                            <!-- AI-generated instructions will be rendered here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: KANBAN BOARD -->
+            <div id="kanban-view" class="hidden">
+                <div class="card-header flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-text-light light:text-text-dark flex items-center gap-2"><i class="fa-solid fa-table-columns"></i> Bảng Kanban Tác vụ</h2>
+                    <button class="btn-primary px-4 py-2 text-sm font-medium rounded-sm transition-colors flex items-center gap-2" id="btn-add-kanban-task">
+                        <i class="fa-solid fa-plus"></i> Tác vụ nhanh
+                    </button>
+                </div>
+                <div id="kanban-board" class="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[400px]">
+                    <div class="kanban-column bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light rounded-md p-4 flex flex-col gap-3" data-status="todo">
+                        <h3 class="kanban-column-header text-lg font-semibold text-text-light light:text-text-dark pb-2 border-b border-border-dark light:border-border-light mb-2 flex justify-between items-center">
+                            Việc cần làm <span id="kanban-todo-count" class="text-sm font-normal text-text-muted-dark light:text-text-muted-light">0</span>
+                        </h3>
+                        <div class="kanban-task-list flex-1 flex flex-col gap-3 overflow-y-auto pr-1" id="kanban-todo-list"></div>
+                    </div>
+                    <div class="kanban-column bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light rounded-md p-4 flex flex-col gap-3" data-status="in-progress">
+                        <h3 class="kanban-column-header text-lg font-semibold text-text-light light:text-text-dark pb-2 border-b border-border-dark light:border-border-light mb-2 flex justify-between items-center">
+                            Đang thực hiện <span id="kanban-in-progress-count" class="text-sm font-normal text-text-muted-dark light:text-text-muted-light">0</span>
+                        </h3>
+                        <div class="kanban-task-list flex-1 flex flex-col gap-3 overflow-y-auto pr-1" id="kanban-in-progress-list"></div>
+                    </div>
+                    <div class="kanban-column bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light rounded-md p-4 flex flex-col gap-3" data-status="completed">
+                        <h3 class="kanban-column-header text-lg font-semibold text-text-light light:text-text-dark pb-2 border-b border-border-dark light:border-border-light mb-2 flex justify-between items-center">
+                            Đã hoàn thành <span id="kanban-completed-count" class="text-sm font-normal text-text-muted-dark light:text-text-muted-light">0</span>
+                        </h3>
+                        <div class="kanban-task-list flex-1 flex flex-col gap-3 overflow-y-auto pr-1" id="kanban-completed-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: CALENDAR -->
+            <div id="calendar-view-container" class="hidden">
+                <div class="card-header flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-text-light light:text-text-dark flex items-center gap-2"><i class="fa-solid fa-calendar-days"></i> Lịch trình AI (Tuần này)</h2>
+                    <div class="flex gap-2">
+                        <button class="btn-secondary px-3 py-1 text-sm font-medium rounded-sm transition-colors flex items-center gap-1" id="btn-prev-week">
+                            <i class="fa-solid fa-arrow-left"></i> Trước
+                        </button>
+                        <span class="self-center text-sm text-text-muted-dark light:text-text-muted-light" id="calendar-week-range"></span>
+                        <button class="btn-secondary px-3 py-1 text-sm font-medium rounded-sm transition-colors flex items-center gap-1" id="btn-next-week">
+                            Sau <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="calendar-view" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 text-sm">
+                    <!-- Calendar days and tasks will be rendered here -->
+                </div>
+            </div>
+
+            <!-- VIEW: GOAL MANAGEMENT -->
+            <div id="goals-view" class="hidden">
+                <div class="card-header flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-text-light light:text-text-dark flex items-center gap-2"><i class="fa-solid fa-trophy"></i> Mục tiêu Cấp cao</h2>
+                    <button class="btn-primary px-4 py-2 text-sm font-medium rounded-sm transition-colors flex items-center gap-2" id="btn-add-goal">
+                        <i class="fa-solid fa-plus"></i> Mục tiêu mới
+                    </button>
+                </div>
+                <div class="goal-list flex flex-col gap-4" id="goal-list-container">
+                    <!-- Goals will be rendered here -->
+                </div>
+            </div>
+
+            <!-- VIEW: SETTINGS -->
+            <div id="settings-view" class="hidden">
+                <div class="settings-section bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light rounded-md p-6 flex flex-col gap-4">
+                    <h3 class="text-xl font-semibold text-text-light light:text-text-dark pb-2 border-b border-border-dark light:border-border-light flex items-center gap-2"><i class="fa-solid fa-microchip"></i> Cấu hình AI Core (BYOD Gemini Keys)</h3>
+                    <p class="text-sm text-text-muted-dark light:text-text-muted-light">
+                        Nhập các khóa API Gemini cá nhân của bạn (mỗi dòng một khóa hoặc cách nhau bằng dấu phẩy). Dữ liệu được mã hóa và lưu trữ độc quyền trong LocalStorage / IndexedDB của trình duyệt.
+                    </p>
+                    <div class="form-group flex flex-col gap-1 mt-2">
+                        <label for="keys-input-area" class="text-xs font-semibold uppercase tracking-wider text-text-muted-dark light:text-text-muted-light">Danh sách Khóa Gemini (BYOD):</label>
+                        <textarea id="keys-input-area" class="form-control w-full bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light text-text-light light:text-text-dark px-3 py-2 rounded-sm text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors resize-y min-h-[120px]" placeholder="AIzaSyA...
+AIzaSyB...
+AIzaSyC..."></textarea>
+                    </div>
+                    <div class="form-group flex flex-col gap-1 mt-2">
+                        <label for="select-preferred-model" class="text-xs font-semibold uppercase tracking-wider text-text-muted-dark light:text-text-muted-light">Mô hình AI Lõi Ưu tiên:</label>
+                        <select id="select-preferred-model" class="form-control w-full bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light text-text-light light:text-text-dark px-3 py-2 rounded-sm text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors">
+                            <option value="gemini-3.8-flash">Gemini 3.8 Flash (Tốc độ siêu nhanh & Siêu chính xác)</option>
+                            <option value="gemini-3.7-flash">Gemini 3.7 Flash (Cân bằng & Tối ưu)</option>
+                            <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
+                            <option value="gemini-3.5-flash">Gemini 3.5 Flash Reasoning</option>
+                            <option value="gemini-3-flash-preview">Gemini 3 Flash Preview (Thử nghiệm tiên tiến)</option>
+                            <option value="gemini-3.8-flash-tts">Gemini 3.8 Flash TTS (Chuyên dụng giọng nói)</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2 mt-4">
+                        <button class="btn-primary px-4 py-2 text-sm font-medium rounded-sm transition-colors flex items-center gap-2" id="btn-save-keys">
+                            <i class="fa-solid fa-floppy-disk"></i> Lưu & Kiểm định Cụm Key
+                        </button>
+                        <button class="btn-secondary px-4 py-2 text-sm font-medium rounded-sm transition-colors flex items-center gap-2" id="btn-test-rotation">
+                            <i class="fa-solid fa-bolt"></i> Kiểm thử xoay vòng (Ping)
+                        </button>
+                    </div>
+                    <div id="key-test-log" class="mt-4 font-mono text-xs text-accent"></div>
+                </div>
+
+                <div class="settings-section bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light rounded-md p-6 flex flex-col gap-4">
+                    <h3 class="text-xl font-semibold text-text-light light:text-text-dark pb-2 border-b border-border-dark light:border-border-light flex items-center gap-2"><i class="fa-solid fa-bell"></i> Thông báo & PWA</h3>
+                    <label class="flex items-center gap-2 cursor-pointer text-text-light light:text-text-dark text-sm">
+                        <input type="checkbox" id="chk-allow-push" class="form-checkbox h-4 w-4 text-primary rounded border-border-dark light:border-border-light bg-bg-card-dark light:bg-bg-card-light focus:ring-primary transition-colors" />
+                        <span>Kích hoạt Web Push Notifications</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-text-light light:text-text-dark text-sm">
+                        <input type="checkbox" id="chk-allow-voice" checked class="form-checkbox h-4 w-4 text-primary rounded border-border-dark light:border-border-light bg-bg-card-dark light:bg-bg-card-light focus:ring-primary transition-colors" />
+                        <span>Thông báo bằng lời nói (AI TTS)</span>
+                    </label>
+                    <button class="btn-secondary px-4 py-2 text-sm font-medium rounded-sm transition-colors flex items-center gap-2" id="btn-test-notification">
+                        <i class="fa-solid fa-bell"></i> Thử nghiệm Thông báo tức thì
+                    </button>
+                    <button class="btn-secondary px-4 py-2 text-sm font-medium rounded-sm transition-colors flex items-center gap-2 hidden" id="btn-install-pwa">
+                        <i class="fa-solid fa-mobile-screen-button"></i> Cài đặt Ứng dụng PWA
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cột Phải: AI Copilot Sidebar -->
+        <aside class="sidebar-right flex flex-col gap-6">
+            <div class="card bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light rounded-md p-4 flex flex-col gap-4 shadow-sm">
+                <div class="card-header flex items-center justify-between">
+                    <span class="text-lg font-semibold text-text-light light:text-text-dark flex items-center gap-2"><i class="fa-solid fa-robot"></i> AI Copilot</span>
+                    <button class="btn-secondary px-3 py-1 text-sm font-medium rounded-sm transition-colors flex items-center gap-1" id="btn-clear-ai-history">
+                        <i class="fa-solid fa-eraser"></i> Xóa
+                    </button>
+                </div>
+                <div class="ai-chat-box flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1" id="ai-chat-feed">
+                    <div class="ai-bubble rounded-sm p-3 text-sm bg-primary/10 border-l-4 border-primary text-text-light light:text-text-dark">
+                        Chào bạn! Tôi là Trợ lý AI của Chronos. Hãy hỏi tôi bất cứ điều gì về mục tiêu hoặc tác vụ của bạn.
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-2">
+                    <input type="text" id="ai-user-prompt" class="form-control flex-grow bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light text-text-light light:text-text-dark px-3 py-2 rounded-sm text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="Hỏi AI: Sắp xếp hôm nay ra sao?..." />
+                    <button class="btn-ai px-4 py-2 text-sm font-medium rounded-sm transition-colors flex items-center gap-2" id="btn-submit-ai-prompt">
+                        <i class="fa-solid fa-paper-plane"></i> Gửi
+                    </button>
+                </div>
+            </div>
+
+            <div class="card bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light rounded-md p-4 flex flex-col gap-4 shadow-sm">
+                <div class="card-header flex items-center justify-between">
+                    <span class="text-lg font-semibold text-text-light light:text-text-dark flex items-center gap-2"><i class="fa-solid fa-server"></i> Trạng thái AI Core</span>
+                </div>
+                <div class="key-rotation-box text-sm bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light rounded-sm p-3">
+                    <div class="flex justify-between items-center text-text-muted-dark light:text-text-muted-light">
+                        <span>25 Keys Pool</span>
+                        <span id="active-key-index-badge" class="text-accent font-bold">Key #1 Hoạt động</span>
+                    </div>
+                    <div class="key-meter-bar w-full h-1.5 bg-white/10 rounded-full overflow-hidden my-2">
+                        <div class="key-meter-fill h-full w-full bg-gradient-to-r from-accent to-primary transition-all duration-300 ease-in-out" id="key-health-meter"></div>
+                    </div>
+                    <div class="key-pill-grid grid grid-cols-5 gap-1 mt-2" id="key-grid-visualizer">
+                        <!-- 25 pills generated dynamically via JS -->
+                    </div>
+                    <p class="mt-2 text-xs text-text-muted-dark light:text-text-muted-light">
+                        Hệ thống tự động fail-over thông minh khi gặp Rate-Limit (429) hoặc Quota Exceeded.
+                    </p>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Dialog Thêm / Chỉnh sửa Mục tiêu -->
+    <dialog class="app-dialog rounded-md p-6 shadow-lg bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light text-text-light light:text-text-dark max-w-xl w-11/12" id="goal-modal" aria-labelledby="modal-goal-title">
+        <form method="dialog" id="goal-modal-form">
+            <div class="dialog-header flex items-center justify-between mb-5">
+                <h3 id="modal-goal-title" class="text-xl font-bold">Mục tiêu Mới</h3>
+                <button type="button" class="btn-secondary px-3 py-1 text-sm rounded-sm transition-colors" id="btn-close-goal-modal" aria-label="Đóng">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="dialog-body flex flex-col gap-4">
+                <input type="hidden" id="goal-id-field" />
+                <div class="form-group flex flex-col gap-1">
+                    <label for="goal-title-input" class="text-xs font-semibold uppercase tracking-wider text-text-muted-dark light:text-text-muted-light">Tiêu đề Mục tiêu <span class="text-danger">*</span></label>
+                    <input type="text" id="goal-title-input" class="form-control w-full bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light text-text-light light:text-text-dark px-3 py-2 rounded-sm text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="Ví dụ: Hoàn thành chứng chỉ PMP" required />
+                </div>
+                <div class="form-group flex flex-col gap-1">
+                    <label for="goal-desc-input" class="text-xs font-semibold uppercase tracking-wider text-text-muted-dark light:text-text-muted-light">Mô tả Mục tiêu</label>
+                    <textarea id="goal-desc-input" class="form-control w-full bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light text-text-light light:text-text-dark px-3 py-2 rounded-sm text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors resize-y min-h-[80px]" rows="3" placeholder="Mô tả chi tiết mục tiêu của bạn..."></textarea>
+                </div>
+                <div class="bg-bg-card-dark light:bg-bg-card-light p-3 rounded-sm border border-border-dark light:border-border-light">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-accent">AI GOAL ORCHESTRATOR</span>
+                        <button type="button" class="btn-ai px-3 py-1 text-xs font-medium rounded-sm transition-colors flex items-center gap-1" id="btn-ai-breakdown-goal">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Phân rã & Lên lịch
+                        </button>
+                    </div>
+                    <p class="text-xs text-text-muted-dark light:text-text-muted-light mt-1">
+                        AI sẽ tự động chia nhỏ mục tiêu thành các tác vụ, hướng dẫn chi tiết và lên lịch trình.
+                    </p>
+                </div>
+            </div>
+            <div class="dialog-footer flex justify-end gap-3 mt-6">
+                <button type="button" class="btn-secondary px-4 py-2 text-sm font-medium rounded-sm transition-colors" id="btn-cancel-goal-modal">
+                    <i class="fa-solid fa-xmark"></i> Hủy
+                </button>
+                <button type="submit" class="btn-primary px-4 py-2 text-sm font-medium rounded-sm transition-colors" id="btn-save-goal">
+                    <i class="fa-solid fa-floppy-disk"></i> Lưu Mục tiêu
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Dialog Thêm / Chỉnh sửa Tác vụ (cho Kanban) -->
+    <dialog class="app-dialog rounded-md p-6 shadow-lg bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light text-text-light light:text-text-dark max-w-xl w-11/12" id="task-modal" aria-labelledby="modal-task-title">
+        <form method="dialog" id="task-modal-form">
+            <div class="dialog-header flex items-center justify-between mb-5">
+                <h3 id="modal-task-title" class="text-xl font-bold">Tác vụ Nhanh</h3>
+                <button type="button" class="btn-secondary px-3 py-1 text-sm rounded-sm transition-colors" id="btn-close-task-modal" aria-label="Đóng">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="dialog-body flex flex-col gap-4">
+                <input type="hidden" id="task-id-field" />
+                <div class="form-group flex flex-col gap-1">
+                    <label for="task-title-input" class="text-xs font-semibold uppercase tracking-wider text-text-muted-dark light:text-text-muted-light">Tiêu đề tác vụ <span class="text-danger">*</span></label>
+                    <input type="text" id="task-title-input" class="form-control w-full bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light text-text-light light:text-text-dark px-3 py-2 rounded-sm text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="Ví dụ: Gửi email báo cáo hàng tuần" required />
+                </div>
+                <div class="form-group flex flex-col gap-1">
+                    <label for="task-desc-input" class="text-xs font-semibold uppercase tracking-wider text-text-muted-dark light:text-text-muted-light">Mô tả chi tiết</label>
+                    <textarea id="task-desc-input" class="form-control w-full bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light text-text-light light:text-text-dark px-3 py-2 rounded-sm text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors resize-y min-h-[80px]" rows="3" placeholder="Chi tiết nội dung cần triển khai..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="form-group flex flex-col gap-1">
+                        <label for="task-due-date" class="text-xs font-semibold uppercase tracking-wider text-text-muted-dark light:text-text-muted-light">Hạn chót</label>
+                        <input type="datetime-local" id="task-due-date" class="form-control w-full bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light text-text-light light:text-text-dark px-3 py-2 rounded-sm text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors" />
+                    </div>
+                    <div class="form-group flex flex-col gap-1">
+                        <label for="task-priority-select" class="text-xs font-semibold uppercase tracking-wider text-text-muted-dark light:text-text-muted-light">Độ ưu tiên</label>
+                        <select id="task-priority-select" class="form-control w-full bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light text-text-light light:text-text-dark px-3 py-2 rounded-sm text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors">
+                            <option value="high">Cao</option>
+                            <option value="medium" selected>Trung bình</option>
+                            <option value="low">Thấp</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group flex flex-col gap-1">
+                    <label for="task-tags-input" class="text-xs font-semibold uppercase tracking-wider text-text-muted-dark light:text-text-muted-light">Thẻ phân loại (cách nhau bởi dấu phẩy)</label>
+                    <input type="text" id="task-tags-input" class="form-control w-full bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light text-text-light light:text-text-dark px-3 py-2 rounded-sm text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 transition-colors" placeholder="du-an, khach-hang" />
+                </div>
+                <div class="bg-bg-card-dark light:bg-bg-card-light p-3 rounded-sm border border-border-dark light:border-border-light">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-accent">AI TASK CO-PILOT</span>
+                        <button type="button" class="btn-ai px-3 py-1 text-xs font-medium rounded-sm transition-colors flex items-center gap-1" id="btn-ai-generate-instructions">
+                            <i class="fa-solid fa-robot"></i> AI Hướng dẫn chi tiết
+                        </button>
+                    </div>
+                    <p class="text-xs text-text-muted-dark light:text-text-muted-light mt-1">
+                        AI sẽ tạo ra các bước hành động cụ thể để hoàn thành tác vụ này.
+                    </p>
+                </div>
+            </div>
+            <div class="dialog-footer flex justify-end gap-3 mt-6">
+                <button type="button" class="btn-secondary px-4 py-2 text-sm font-medium rounded-sm transition-colors" id="btn-cancel-task-modal">
+                    <i class="fa-solid fa-xmark"></i> Hủy
+                </button>
+                <button type="submit" class="btn-primary px-4 py-2 text-sm font-medium rounded-sm transition-colors" id="btn-save-task">
+                    <i class="fa-solid fa-floppy-disk"></i> Lưu tác vụ
+                </button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Âm thanh hoàn thành chu kỳ Pomodoro & Thông báo -->
+    <audio id="audio-chime" preload="auto">
+        <source src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"+Array(200).join("AP8A") type="audio/wav">
+    </audio>
+
+    <script>
+        /**
+         * CHRONOS AI ENTERPRISE - AI-DRIVEN FOCUS & EXECUTION ENGINE
+         * Multi-Agent Architecture JavaScript Core - Eliminating User Inertia
+         */
+
+        // 1. GLOBAL STATE MANAGEMENT
+        const State = {
+            goals: [],
+            tasks: [], // All tasks, including sub-tasks
+            keys: [], // Gemini API Keys
+            currentKeyIndex: 0,
+            selectedModel: 'gemini-3.8-flash',
+            settings: {
+                speechVoice: true,
+                pushNotification: false,
+                focusDuration: 25 * 60, // 25 minutes
+                breakDuration: 5 * 60,  // 5 minutes
+                longBreakDuration: 15 * 60, // 15 minutes
+                pomodoroCount: 0, // Number of completed focus sessions
+                pomodoroCycle: 4, // Long break after 4 sessions
+                theme: 'dark' // 'dark' | 'light'
+            },
+            pomodoro: {
+                timerId: null,
+                remainingTime: 0, // Initialized later
+                isRunning: false,
+                mode: 'focus' // 'focus' | 'break' | 'long-break'
+            },
+            currentFocusTask: null, // The task currently being focused on
+            deferredPrompt: null, // For PWA installation
+            currentView: 'focus', // 'focus', 'kanban', 'calendar', 'goals', 'settings'
+            calendarWeekOffset: 0 // For calendar view navigation
+        };
+
+        const DB_KEYS = {
+            GOALS: 'chronos_goals_v1',
+            TASKS: 'chronos_tasks_v1',
+            API_KEYS: 'chronos_gemini_keys_pool_v1',
+            MODEL: 'chronos_selected_model_v1',
+            SETTINGS: 'chronos_settings_v1'
+        };
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function loadInitialState() {
+            try {
+                State.goals = JSON.parse(localStorage.getItem(DB_KEYS.GOALS) || '[]');
+                State.tasks = JSON.parse(localStorage.getItem(DB_KEYS.TASKS) || '[]');
+                State.keys = JSON.parse(localStorage.getItem(DB_KEYS.API_KEYS) || '[]');
+                if (localStorage.getItem(DB_KEYS.MODEL)) {
+                    State.selectedModel = localStorage.getItem(DB_KEYS.MODEL);
+                }
+                if (localStorage.getItem(DB_KEYS.SETTINGS)) {
+                    State.settings = { ...State.settings, ...JSON.parse(localStorage.getItem(DB_KEYS.SETTINGS)) };
+                }
+                // Set initial pomodoro time based on settings
+                State.pomodoro.remainingTime = State.settings.focusDuration;
+            } catch (err) {
+                console.error('Lỗi khi tải LocalStorage:', err);
+            }
+        }
+
+        function saveStateToStorage() {
+            localStorage.setItem(DB_KEYS.GOALS, JSON.stringify(State.goals));
+            localStorage.setItem(DB_KEYS.TASKS, JSON.stringify(State.tasks));
+            localStorage.setItem(DB_KEYS.API_KEYS, JSON.stringify(State.keys));
+            localStorage.setItem(DB_KEYS.MODEL, State.selectedModel);
+            localStorage.setItem(DB_KEYS.SETTINGS, JSON.stringify(State.settings));
+        }
+
+        // 2. INTELLIGENT GEMINI ROTATION ENGINE (25 KEYS BYOD)
+        class GeminiKeyRotationEngine {
+            constructor() {
+                this.healthMap = new Map(); // key -> { fails: 0, lastUsed: 0, status: 'ok'|'exhausted' }
+                this.resetKeyHealth();
+            }
+
+            resetKeyHealth() {
+                State.keys.forEach(key => {
+                    if (!this.healthMap.has(key)) {
+                        this.healthMap.set(key, { fails: 0, lastUsed: 0, status: 'ok' });
+                    } else {
+                        // Reset status for existing keys
+                        this.healthMap.get(key).status = 'ok';
+                    }
+                });
+            }
+
+            getAvailableKeys() {
+                return State.keys.filter(key => this.healthMap.get(key)?.status === 'ok');
+            }
+
+            getCurrentKey() {
+                const availableKeys = this.getAvailableKeys();
+                if (availableKeys.length === 0) return null;
+
+                // Simple round-robin among available keys
+                State.currentKeyIndex = (State.currentKeyIndex + 1) % availableKeys.length;
+                return availableKeys[State.currentKeyIndex];
+            }
+
+            markKeyExhausted(key) {
+                const keyData = this.healthMap.get(key);
+                if (keyData) {
+                    keyData.fails++;
+                    keyData.status = 'exhausted';
+                    console.warn(`Key ${key.substring(0, 5)}... marked as exhausted.`);
+                }
+                renderKeyVisualizer();
+            }
+
+            async queryGeminiWithFailover(prompt, options = {}) {
+                if (State.keys.length === 0) {
+                    throw new Error('Vui lòng nhập ít nhất 1 API Key tại mục "Cài đặt"!');
+                }
+
+                let attempts = 0;
+                const maxAttempts = State.keys.length;
+
+                while (attempts < maxAttempts) {
+                    const activeKey = this.getCurrentKey();
+                    if (!activeKey) {
+                        throw new Error('Không còn API Key nào khả dụng trong cụm xoay vòng.');
+                    }
+
+                    const modelName = State.selectedModel;
+                    let targetEndpointModel = 'gemini-1.5-flash'; // Default to a stable model
+                    if (modelName.includes('3.8')) targetEndpointModel = 'gemini-1.5-flash'; // Using 1.5-flash as a proxy for 3.8 for now
+                    else if (modelName.includes('3.7')) targetEndpointModel = 'gemini-1.5-flash';
+                    else if (modelName.includes('3.6')) targetEndpointModel = 'gemini-1.5-flash';
+                    else if (modelName.includes('3.5')) targetEndpointModel = 'gemini-1.5-pro'; // Pro for reasoning
+                    else if (modelName.includes('3-flash-preview')) targetEndpointModel = 'gemini-1.5-flash'; // Placeholder for preview
+
+                    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${targetEndpointModel}:generateContent?key=${activeKey}`;
+
+                    try {
+                        updateAIBadge(`Đang xử lý qua Key #${State.keys.indexOf(activeKey) + 1}...`, true);
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [{ text: prompt }]
+                                }],
+                                generationConfig: {
+                                    temperature: options.temperature || 0.4,
+                                    maxOutputTokens: options.maxTokens || 2048 // Increased for complex tasks
+                                }
+                            })
+                        });
+
+                        if (response.status === 429 || response.status === 403) {
+                            console.warn(`Key ${activeKey.substring(0, 5)}... gặp giới hạn hạn ngạch hoặc lỗi xác thực. Tiến hành chuyển mạch...`);
+                            this.markKeyExhausted(activeKey);
+                            attempts++;
+                            continue;
+                        }
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}: ${await response.text()}`);
+                        }
+
+                        const data = await response.json();
+                        updateAIBadge(State.selectedModel, false);
+                        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (!rawText) throw new Error('Không nhận được nội dung từ Gemini.');
+                        return rawText;
+                    } catch (fetchErr) {
+                        console.error(`Lỗi request với Key ${activeKey.substring(0, 5)}...:`, fetchErr);
+                        this.markKeyExhausted(activeKey);
+                        attempts++;
+                    }
+                }
+                updateAIBadge('Lỗi kết nối toàn bộ cụm Key', false);
+                throw new Error('Tất cả các Key trong cụm xoay vòng đều hết hạn ngạch hoặc không thể phản hồi.');
+            }
+
+            async queryGeminiTTS(text) {
+                if (!State.keys || State.keys.length === 0) {
+                    throw new Error('Vui lòng nhập ít nhất 1 API Key để sử dụng TTS!');
+                }
+
+                let attempts = 0;
+                const maxAttempts = State.keys.length;
+
+                while (attempts < maxAttempts) {
+                    const activeKey = this.getCurrentKey();
+                    if (!activeKey) {
+                        throw new Error('Không còn API Key nào khả dụng cho TTS.');
+                    }
+
+                    const endpoint = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${activeKey}`;
+                    try {
+                        updateAIBadge(`TTS qua Key #${State.keys.indexOf(activeKey) + 1}...`, true);
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                input: { text: text },
+                                voice: { languageCode: 'vi-VN', name: 'vi-VN-Standard-A' }, // Standard Vietnamese voice
+                                audioConfig: { audioEncoding: 'MP3' }
+                            })
+                        });
+
+                        if (response.status === 429 || response.status === 403) {
+                            this.markKeyExhausted(activeKey);
+                            attempts++;
+                            continue;
+                        }
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP Error ${response.status}: ${await response.text()}`);
+                        }
+
+                        const data = await response.json();
+                        updateAIBadge(State.selectedModel, false);
+                        return `data:audio/mp3;base64,${data.audioContent}`;
+                    } catch (fetchErr) {
+                        console.error(`Lỗi TTS với Key ${activeKey.substring(0, 5)}...:`, fetchErr);
+                        this.markKeyExhausted(activeKey);
+                        attempts++;
+                    }
+                }
+                updateAIBadge('Lỗi TTS toàn bộ cụm Key', false);
+                throw new Error('Tất cả các Key đều hết hạn ngạch hoặc không thể phản hồi cho TTS.');
+            }
+        }
+
+        const rotationEngine = new GeminiKeyRotationEngine();
+
+        function updateAIBadge(text, isLoading = false) {
+            const badge = document.getElementById('ai-active-model-name');
+            if (badge) badge.textContent = text;
+            // Assuming a status dot exists in the header, though removed in this version for minimalism
+            // const dot = document.querySelector('.status-dot');
+            // if (dot) dot.style.backgroundColor = isLoading ? 'var(--warning)' : 'var(--success)';
+        }
+
+        // 3. VOICE & PUSH NOTIFICATION ENGINE
+        class SmartNotificationOrchestrator {
+            constructor() {
+                this.synth = window.speechSynthesis;
+                this.audioPlayer = new Audio();
+            }
+
+            async speak(text) {
+                if (!State.settings.speechVoice) return;
+
+                // Try Gemini TTS first if available and configured
+                if (State.selectedModel.includes('tts') && State.keys.length > 0) {
+                    try {
+                        const audioUrl = await rotationEngine.queryGeminiTTS(text);
+                        this.audioPlayer.src = audioUrl;
+                        this.audioPlayer.play().catch(e => console.error("Lỗi phát audio Gemini TTS:", e));
+                        return;
+                    } catch (e) {
+                        console.warn("Không thể sử dụng Gemini TTS, chuyển sang Web Speech API:", e.message);
+                        // Fallback to Web Speech API
+                    }
+                }
+
+                // Fallback to Web Speech API
+                if (this.synth) {
+                    this.synth.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'vi-VN';
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.0;
+                    const voices = this.synth.getVoices();
+                    const viVoice = voices.find(v => v.lang.includes('vi') || v.lang.includes('VN'));
+                    if (viVoice) utterance.voice = viVoice;
+                    this.synth.speak(utterance);
+                }
+            }
+
+            async sendPush(title, body) {
+                if (!State.settings.pushNotification || !('Notification' in window)) return;
+
+                if (Notification.permission === 'granted') {
+                    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage({
+                            type: 'TRIGGER_NOTIFICATION',
+                            title,
+                            body
+                        });
+                    } else {
+                        new Notification(title, {
+                            body,
+                            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⚡</text></svg>'
+                        });
+                    }
+                }
+            }
+
+            triggerAlert(title, message) {
+                this.speak(message);
+                this.sendPush(title, message);
+                const chime = document.getElementById('audio-chime');
+                if (chime) chime.play().catch(() => {});
+            }
+        }
+
+        const notifier = new SmartNotificationOrchestrator();
+
+        // 4. POMODORO FOCUS ENGINE
+        function initPomodoro() {
+            const timerText = document.getElementById('pomodoro-timer-text');
+            const modeLabel = document.getElementById('pomodoro-mode-label');
+            const startBtn = document.getElementById('pomo-start-pause');
+            const resetBtn = document.getElementById('pomo-reset');
+            const skipBtn = document.getElementById('pomo-skip');
+            const completeTaskBtn = document.getElementById('btn-complete-task');
+
+            function formatTime(seconds) {
+                const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const s = (seconds % 60).toString().padStart(2, '0');
+                return `${m}:${s}`;
+            }
+
+            function updateDisplay() {
+                timerText.textContent = formatTime(State.pomodoro.remainingTime);
+                document.title = `(${formatTime(State.pomodoro.remainingTime)}) Chronos AI`;
+            }
+
+            function setMode(mode) {
+                State.pomodoro.mode = mode;
+                if (mode === 'focus') {
+                    State.pomodoro.remainingTime = State.settings.focusDuration;
+                    modeLabel.textContent = 'TẬP TRUNG CAO ĐỘ';
+                    completeTaskBtn.classList.remove('hidden');
+                } else if (mode === 'break') {
+                    State.pomodoro.remainingTime = State.settings.breakDuration;
+                    modeLabel.textContent = 'GIẢI LAO NGHỈ NGƠI';
+                    completeTaskBtn.classList.add('hidden');
+                } else if (mode === 'long-break') {
+                    State.pomodoro.remainingTime = State.settings.longBreakDuration;
+                    modeLabel.textContent = 'GIẢI LAO DÀI';
+                    completeTaskBtn.classList.add('hidden');
+                }
+                updateDisplay();
+            }
+
+            function tick() {
+                if (State.pomodoro.remainingTime > 0) {
+                    State.pomodoro.remainingTime--;
+                    updateDisplay();
+                } else {
+                    clearInterval(State.pomodoro.timerId);
+                    State.pomodoro.isRunning = false;
+                    startBtn.innerHTML = '<i class="fa-solid fa-play"></i> Bắt đầu';
+
+                    if (State.pomodoro.mode === 'focus') {
+                        State.settings.pomodoroCount++;
+                        if (State.settings.pomodoroCount % State.settings.pomodoroCycle === 0) {
+                            notifier.triggerAlert('Pomodoro Hoàn Tất!', 'Chu kỳ tập trung đã kết thúc. Bạn có 15 phút nghỉ ngơi dài sảng khoái.');
+                            setMode('long-break');
+                        } else {
+                            notifier.triggerAlert('Pomodoro Hoàn Tất!', 'Chu kỳ tập trung đã kết thúc. Bạn có 5 phút nghỉ ngơi sảng khoái.');
+                            setMode('break');
+                        }
+                    } else {
+                        notifier.triggerAlert('Hết giờ giải lao!', 'Hãy khởi động lại chu kỳ làm việc hiệu suất mới nào.');
+                        setMode('focus');
+                    }
+                    saveStateToStorage();
+                    updateDisplay();
+                }
+            }
+
+            startBtn.addEventListener('click', () => {
+                if (State.pomodoro.remainingTime === 0) { // If timer is at 0, reset to current mode's duration
+                    setMode(State.pomodoro.mode);
+                }
+
+                if (State.pomodoro.isRunning) {
+                    clearInterval(State.pomodoro.timerId);
+                    State.pomodoro.isRunning = false;
+                    startBtn.innerHTML = '<i class="fa-solid fa-play"></i> Tiếp tục';
+                } else {
+                    State.pomodoro.isRunning = true;
+                    startBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Tạm dừng';
+                    State.pomodoro.timerId = setInterval(tick, 1000);
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                clearInterval(State.pomodoro.timerId);
+                State.pomodoro.isRunning = false;
+                startBtn.innerHTML = '<i class="fa-solid fa-play"></i> Bắt đầu';
+                setMode(State.pomodoro.mode); // Reset to current mode's duration
+            });
+
+            skipBtn.addEventListener('click', () => {
+                clearInterval(State.pomodoro.timerId);
+                State.pomodoro.isRunning = false;
+                startBtn.innerHTML = '<i class="fa-solid fa-play"></i> Bắt đầu';
+                if (State.pomodoro.mode === 'focus') {
+                    State.settings.pomodoroCount++; // Count as completed focus
+                    if (State.settings.pomodoroCount % State.settings.pomodoroCycle === 0) {
+                        setMode('long-break');
+                    } else {
+                        setMode('break');
+                    }
+                } else {
+                    setMode('focus');
+                }
+                saveStateToStorage();
+            });
+
+            completeTaskBtn.addEventListener('click', () => {
+                if (State.currentFocusTask) {
+                    const task = State.tasks.find(t => t.id === State.currentFocusTask.id);
+                    if (task) {
+                        task.status = 'completed';
+                        task.completedAt = new Date().toISOString();
+                        notifier.triggerAlert('Tác vụ hoàn thành!', `Chúc mừng bạn đã hoàn thành: ${task.title}`);
+                        State.currentFocusTask = null; // Clear current focus
+                        saveStateToStorage();
+                        renderAllViews();
+                        setMode('break'); // Automatically go to break after completing a task
+                    }
+                }
+            });
+
+            setMode('focus'); // Initial mode
+        }
+
+        // 5. FOCUS VIEW CONTROLLER (Next Action Logic)
+        function renderFocusView() {
+            const focusViewEl = document.getElementById('focus-view');
+            const titleEl = document.getElementById('focus-task-title');
+            const statusEl = document.getElementById('focus-task-status');
+            const instructionsContainer = document.getElementById('focus-task-instructions-container');
+            const instructionListEl = document.getElementById('ai-instruction-list');
+            const completeTaskBtn = document.getElementById('btn-complete-task');
+
+            // Find the next task to focus on
+            let nextTask = State.tasks
+                .filter(t => t.status === 'todo' || t.status === 'in-progress')
+                .sort((a, b) => {
+                    // Prioritize 'in-progress' tasks
+                    if (a.status === 'in-progress' && b.status !== 'in-progress') return -1;
+                    if (b.status === 'in-progress' && a.status !== 'in-progress') return 1;
+
+                    // Then by scheduled time (earliest first)
+                    if (a.scheduledTime && b.scheduledTime) {
+                        return new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime();
+                    }
+                    if (a.scheduledTime) return -1; // Scheduled tasks before unscheduled
+                    if (b.scheduledTime) return 1;
+
+                    // Then by priority (high > medium > low)
+                    const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+                    return priorityOrder[b.priority] - priorityOrder[a.priority];
+                })[0];
+
+            if (!nextTask) {
+                titleEl.textContent = 'Chưa có tác vụ nào được lên lịch. Hãy tạo mục tiêu mới!';
+                statusEl.textContent = 'SẴN SÀNG HÀNH ĐỘNG';
+                instructionsContainer.classList.add('hidden');
+                completeTaskBtn.classList.add('hidden');
+                State.currentFocusTask = null;
+                return;
+            }
+
+            State.currentFocusTask = nextTask;
+            titleEl.textContent = nextTask.title;
+            statusEl.textContent = nextTask.status === 'in-progress' ? 'ĐANG THỰC HIỆN' : 'TÁC VỤ KẾ TIẾP';
+            completeTaskBtn.classList.remove('hidden');
+
+            if (nextTask.aiInstructions && nextTask.aiInstructions.length > 0) {
+                instructionsContainer.classList.remove('hidden');
+                instructionListEl.innerHTML = '';
+                nextTask.aiInstructions.forEach((instruction, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'instruction-item flex items-start gap-3 mb-3 text-text-light light:text-text-dark text-base';
+                    const instructionText = typeof instruction === 'object' ? instruction.text : instruction;
+                    const instructionCompleted = typeof instruction === 'object' ? instruction.completed : false;
+
+                    li.innerHTML = `
+                        <input type="checkbox" class="instruction-checkbox appearance-none w-5 h-5 border-2 border-border-dark light:border-border-light rounded-md outline-none cursor-pointer grid place-content-center flex-shrink-0 mt-0.5 transition-colors checked:bg-success checked:border-success checked:before:content-['✓'] checked:before:text-white checked:before:text-sm checked:before:font-bold" id="instruction-${nextTask.id}-${index}" ${instructionCompleted ? 'checked' : ''} />
+                        <label for="instruction-${nextTask.id}-${index}" class="instruction-text flex-1 ${instructionCompleted ? 'line-through text-text-muted-dark light:text-text-muted-light opacity-70' : ''}">${escapeHTML(instructionText)}</label>
+                    `;
+                    instructionListEl.appendChild(li);
+
+                    li.querySelector('.instruction-checkbox').addEventListener('change', (e) => {
+                        const task = State.tasks.find(t => t.id === nextTask.id);
+                        if (task && task.aiInstructions) {
+                            if (typeof task.aiInstructions[index] === 'object') {
+                                task.aiInstructions[index].completed = e.target.checked;
+                            } else { // Convert string to object if needed
+                                task.aiInstructions[index] = { text: task.aiInstructions[index], completed: e.target.checked };
+                            }
+                        }
+                        e.target.nextElementSibling.classList.toggle('line-through', e.target.checked);
+                        e.target.nextElementSibling.classList.toggle('text-text-muted-dark', e.target.checked);
+                        e.target.nextElementSibling.classList.toggle('light:text-text-muted-light', e.target.checked);
+                        e.target.nextElementSibling.classList.toggle('opacity-70', e.target.checked);
+                        saveStateToStorage();
+                    });
+                });
+            } else {
+                instructionsContainer.classList.add('hidden');
+            }
+
+            // Update task status to 'in-progress' if it's 'todo' and now in focus
+            if (nextTask.status === 'todo') {
+                const taskIndex = State.tasks.findIndex(t => t.id === nextTask.id);
+                if (taskIndex !== -1) {
+                    State.tasks[taskIndex].status = 'in-progress';
+                    saveStateToStorage();
+                    renderKanbanBoard(); // Update Kanban view
+                }
+            }
+        }
+
+        // 6. KANBAN BOARD CONTROLLER
+        function renderKanbanBoard() {
+            const todoList = document.getElementById('kanban-todo-list');
+            const inProgressList = document.getElementById('kanban-in-progress-list');
+            const completedList = document.getElementById('kanban-completed-list');
+
+            todoList.innerHTML = '';
+            inProgressList.innerHTML = '';
+            completedList.innerHTML = '';
+
+            let todoCount = 0;
+            let inProgressCount = 0;
+            let completedCount = 0;
+
+            State.tasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = 'kanban-task-card bg-bg-card-dark light:bg-bg-card-light border border-border-dark light:border-border-light rounded-sm p-3 text-sm text-text-light light:text-text-dark cursor-grab transition-all duration-200 ease-in-out shadow-sm hover:border-primary hover:translate-y-[-2px] hover:shadow-md';
+                card.setAttribute('draggable', 'true');
+                card.setAttribute('data-task-id', task.id);
+
+                const formattedDate = task.dueDate ? new Date(task.dueDate).toLocaleDateString('vi-VN') : 'Không hạn';
+
+                card.innerHTML = `
+                    <h4 class="text-base font-semibold mb-1">${escapeHTML(task.title)}</h4>
+                    ${task.description ? `<p class="text-xs text-text-muted-dark light:text-text-muted-light leading-snug">${escapeHTML(task.description.substring(0, 100))}${task.description.length > 100 ? '...' : ''}</p>` : ''}
+                    <div class="meta flex justify-between text-xs text-text-muted-dark light:text-text-muted-light mt-2">
+                        <span><i class="fa-solid fa-calendar-alt mr-1"></i>${formattedDate}</span>
+                        <span><i class="fa-solid fa-flag mr-1"></i>${task.priority.toUpperCase()}</span>
+                    </div>
+                `;
+
+                if (task.status === 'todo') {
+                    todoList.appendChild(card);
+                    todoCount++;
+                } else if (task.status === 'in-progress') {
+                    inProgressList.appendChild(card);
+                    inProgressCount++;
+                } else if (task.status === 'completed') {
+                    completedList.appendChild(card);
+                    completedCount++;
+                }
+            });
+
+            document.getElementById('kanban-todo-count').textContent = todoCount;
+            document.getElementById('kanban-in-progress-count').textContent = inProgressCount;
+            document.getElementById('kanban-completed-count').textContent = completedCount;
+
+            setupKanbanDragAndDrop();
+        }
+
+        function setupKanbanDragAndDrop() {
+            const columns = document.querySelectorAll('.kanban-column');
+            let draggedTask = null;
+
+            columns.forEach(column => {
+                column.addEventListener('dragstart', (e) => {
+                    if (e.target.classList.contains('kanban-task-card')) {
+                        draggedTask = e.target;
+                        e.target.classList.add('opacity-60', 'scale-105');
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', e.target.getAttribute('data-task-id'));
+                    }
+                });
+
+                column.addEventListener('dragover', (e) => {
+                    e.preventDefault(); // Allow drop
+                    if (e.target.classList.contains('kanban-task-list') || e.target.closest('.kanban-task-list')) {
+                        e.dataTransfer.dropEffect = 'move';
+                    }
+                });
+
+                column.addEventListener('dragleave', (e) => {
+                    // Optional: visual feedback for drag leave
+                });
+
+                column.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (draggedTask) {
+                        const taskId = e.dataTransfer.getData('text/plain');
+                        const newStatus = column.getAttribute('data-status');
+                        const task = State.tasks.find(t => t.id === taskId);
+
+                        if (task && task.status !== newStatus) {
+                            task.status = newStatus;
+                            if (newStatus === 'completed') {
+                                task.completedAt = new Date().toISOString();
+                                notifier.speak(`Tác vụ ${task.title} đã hoàn thành!`);
+                            } else {
+                                task.completedAt = null;
+                            }
+                            saveStateToStorage();
+                            renderKanbanBoard(); // Re-render to update counts and positions
+                            renderFocusView(); // Update focus view if needed
+                            renderCalendarView(); // Update calendar view
+                        }
+                    }
+                });
+
+                column.addEventListener('dragend', (e) => {
+                    if (draggedTask) {
+                        draggedTask.classList.remove('opacity-60', 'scale-105');
+                        draggedTask = null;
+                    }
+                });
+            });
+        }
+
+        // 7. CALENDAR VIEW CONTROLLER
+        function renderCalendarView() {
+            const calendarEl = document.getElementById('calendar-view');
+            const weekRangeEl = document.getElementById('calendar-week-range');
+            calendarEl.innerHTML = '';
+
+            const today = new Date();
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay() + (State.calendarWeekOffset * 7)); // Adjust to Sunday of current week offset
+
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+            weekRangeEl.textContent = `${startOfWeek.toLocaleDateString('vi-VN')} - ${endOfWeek.toLocaleDateString('vi-VN')}`;
+
+            for (let i = 0; i < 7; i++) {
+                const currentDay = new Date(startOfWeek);
+                currentDay.setDate(startOfWeek.getDate() + i);
+
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light rounded-md p-3 min-h-[150px] flex flex-col gap-2';
+                dayEl.innerHTML = `<h3 class="calendar-day-header font-semibold text-primary mb-2 text-center">${currentDay.toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric', month: 'numeric' })}</h3>`;
+
+                State.tasks
+                    .filter(t => t.scheduledTime && new Date(t.scheduledTime).toDateString() === currentDay.toDateString() && t.status !== 'completed')
+                    .sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime())
+                    .forEach(task => {
+                        const taskEl = document.createElement('div');
+                        taskEl.className = 'calendar-task-item bg-bg-card-dark light:bg-bg-card-light border-l-4 border-accent p-2 rounded-sm text-xs text-text-light light:text-text-dark overflow-hidden text-ellipsis whitespace-nowrap';
+                        taskEl.textContent = `${new Date(task.scheduledTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - ${escapeHTML(task.title)}`;
+                        dayEl.appendChild(taskEl);
+                    });
+                calendarEl.appendChild(dayEl);
+            }
+        }
+
+        // 8. GOAL MANAGEMENT CONTROLLER
+        function renderGoalManagementView() {
+            const goalListEl = document.getElementById('goal-list-container');
+            goalListEl.innerHTML = '';
+
+            if (State.goals.length === 0) {
+                goalListEl.innerHTML = `
+                    <div class="text-center p-12 text-text-muted-dark light:text-text-muted-light bg-bg-surface-dark light:bg-bg-surface-light rounded-md border border-dashed border-border-dark light:border-border-light">
+                        <p class="text-xl mb-2">Chưa có mục tiêu nào được thiết lập.</p>
+                        <p class="text-sm">Hãy sử dụng AI để phân rã mục tiêu lớn của bạn!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            State.goals.forEach(goal => {
+                const goalItem = document.createElement('article');
+                goalItem.className = 'goal-item bg-bg-surface-dark light:bg-bg-surface-light border border-border-dark light:border-border-light rounded-md p-5 flex flex-col gap-3 shadow-sm';
+                goalItem.setAttribute('data-goal-id', goal.id);
+
+                const tasksForGoal = State.tasks.filter(t => t.goalId === goal.id);
+                const completedTasks = tasksForGoal.filter(t => t.status === 'completed').length;
+                const totalTasks = tasksForGoal.length;
+                const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+
+                goalItem.innerHTML = `
+                    <h3 class="text-xl font-semibold text-primary flex items-center gap-2">
+                        <i class="fa-solid fa-bullseye"></i> ${escapeHTML(goal.title)} <span class="text-sm font-normal text-accent">(${goal.status.toUpperCase()})</span>
+                    </h3>
+                    <p class="text-sm text-text-muted-dark light:text-text-muted-light">${escapeHTML(goal.description || 'Không có mô tả.')}</p>
+                    <div class="flex items-center gap-2 text-sm text-text-muted-dark light:text-text-muted-light">
+                        <span>Tiến độ: ${progress}% (${completedTasks}/${totalTasks} tác vụ)</span>
+                        <div class="flex-grow h-1.5 bg-bg-card-dark light:bg-bg-card-light rounded-full overflow-hidden">
+                            <div class="h-full bg-success rounded-full" style="width:${progress}%;"></div>
+                        </div>
+                    </div>
+                    <div class="goal-actions flex gap-2 mt-2">
+                        <button class="btn-secondary px-3 py-1 text-sm font-medium rounded-sm transition-colors flex items-center gap-1 btn-edit-goal" data-id="${goal.id}">
+                            <i class="fa-solid fa-pen"></i> Chỉnh sửa
+                        </button>
+                        <button class="btn-danger px-3 py-1 text-sm font-medium rounded-sm transition-colors flex items-center gap-1 btn-delete-goal" data-id="${goal.id}">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
+                `;
+                goalListEl.appendChild(goalItem);
+            });
+
+            goalListEl.querySelectorAll('.btn-edit-goal').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const goalId = e.currentTarget.getAttribute('data-id');
+                    const goal = State.goals.find(g => g.id === goalId);
+                    if (goal) {
+                        document.getElementById('goal-id-field').value = goal.id;
+                        document.getElementById('goal-title-input').value = goal.title;
+                        document.getElementById('goal-desc-input').value = goal.description || '';
+                        document.getElementById('modal-goal-title').textContent = 'Chỉnh sửa Mục tiêu';
+                        document.getElementById('goal-modal').showModal();
+                    }
+                });
+            });
+
+            goalListEl.querySelectorAll('.btn-delete-goal').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const goalId = e.currentTarget.getAttribute('data-id');
+                    if (confirm('Bạn có chắc chắn muốn xóa mục tiêu này và tất cả tác vụ liên quan?')) {
+                        State.goals = State.goals.filter(g => g.id !== goalId);
+                        State.tasks = State.tasks.filter(t => t.goalId !== goalId);
+                        saveStateToStorage();
+                        renderGoalManagementView();
+                        renderKanbanBoard();
+                        renderCalendarView();
+                        renderFocusView();
+                    }
+                });
+            });
+        }
+
+        // 9. AI CORE INTERACTION (PROMPT ENGINEERING)
+        async function handleAIGoalBreakdown(goalTitle, goalDescription) {
+            const prompt = `Bạn là một chuyên gia quản lý dự án và năng suất hàng đầu thế giới. Nhiệm vụ của bạn là giúp người dùng đạt được mục tiêu bằng cách loại bỏ hoàn toàn sức ì.
+            Người dùng có mục tiêu cấp cao sau: "${goalTitle}".
+            Mô tả chi tiết: "${goalDescription}".
+
+            Hãy phân rã mục tiêu này thành một danh sách các tác vụ cụ thể, khả thi, và có thể hành động được. Đối với mỗi tác vụ, hãy cung cấp:
+            1.  **title**: Tiêu đề ngắn gọn của tác vụ.
+            2.  **description**: Mô tả chi tiết hơn về tác vụ.
+            3.  **aiInstructions**: Một mảng các chuỗi, mỗi chuỗi là một bước hành động cực kỳ cụ thể, cầm tay chỉ việc để hoàn thành tác vụ đó. Hãy nghĩ như một người hướng dẫn từng li từng tí.
+            4.  **estimatedDuration**: Thời gian ước tính để hoàn thành tác vụ này (bằng phút).
+            5.  **priority**: Độ ưu tiên ('high', 'medium', 'low').
+            6.  **tags**: Một mảng các chuỗi từ khóa liên quan.
+            7.  **scheduledTime**: Một chuỗi ISO 8601 cho thời gian bắt đầu đề xuất của tác vụ này trong 2 tuần tới, phân bổ hợp lý trong giờ làm việc (ví dụ: 9h sáng - 5h chiều). Nếu không thể lên lịch cụ thể, hãy để null.
+
+            Trả lời bằng một mảng JSON của các đối tượng tác vụ. Đảm bảo JSON hợp lệ.
+            Ví dụ cấu trúc JSON:
+            [
+                {
+                    "title": "Tác vụ 1",
+                    "description": "Mô tả tác vụ 1",
+                    "aiInstructions": ["Bước 1.1", "Bước 1.2"],
+                    "estimatedDuration": 60,
+                    "priority": "high",
+                    "tags": ["tag1", "tag2"],
+                    "scheduledTime": "2024-01-01T09:00:00Z"
+                },
+                {
+                    "title": "Tác vụ 2",
+                    "description": "Mô tả tác vụ 2",
+                    "aiInstructions": ["Bước 2.1"],
+                    "estimatedDuration": 30,
+                    "priority": "medium",
+                    "tags": ["tag3"],
+                    "scheduledTime": "2024-01-01T10:30:00Z"
+                }
+            ]
+            `;
+
+            try {
+                const rawResponse = await rotationEngine.queryGeminiWithFailover(prompt, { temperature: 0.7, maxTokens: 4000 });
+                const jsonResponse = JSON.parse(rawResponse.replace(/```json\n|\n```/g, '')); // Clean markdown code block
+                return jsonResponse;
+            } catch (e) {
+                console.error("Lỗi phân rã mục tiêu AI:", e);
+                throw new Error("Không thể phân rã mục tiêu bằng AI. Vui lòng thử lại hoặc kiểm tra API Keys.");
+            }
+        }
+
+        async function handleAITaskInstructions(taskTitle, taskDescription) {
+            const prompt = `Bạn là một trợ lý AI chuyên tạo hướng dẫn chi tiết, cầm tay chỉ việc để hoàn thành một tác vụ.
+            Tác vụ: "${taskTitle}"
+            Mô tả: "${taskDescription}"
+
+            Hãy tạo một mảng các chuỗi, mỗi chuỗi là một bước hành động cực kỳ cụ thể, tỉ mỉ để hoàn thành tác vụ này. Hãy nghĩ như một người hướng dẫn từng li từng tí, loại bỏ mọi sức ì.
+            Trả lời bằng một mảng JSON của các chuỗi. Đảm bảo JSON hợp lệ.
+            Ví dụ:
+            ["Bước 1: Mở trình duyệt và truy cập...", "Bước 2: Đăng nhập vào hệ thống...", "Bước 3: Tìm kiếm mục X..."]
+            `;
+
+            try {
+                const rawResponse = await rotationEngine.queryGeminiWithFailover(prompt, { temperature: 0.5, maxTokens: 1000 });
+                const jsonResponse = JSON.parse(rawResponse.replace(/```json\n|\n```/g, ''));
+                return jsonResponse;
+            } catch (e) {
+                console.error("Lỗi tạo hướng dẫn AI:", e);
+                throw new Error("Không thể tạo hướng dẫn chi tiết bằng AI. Vui lòng thử lại.");
+            }
+        }
+
+        function appendAIChat(sender, message) {
+            const feed = document.getElementById('ai-chat-feed');
+            const bubble = document.createElement('div');
+            bubble.className = `ai-bubble rounded-sm p-3 text-sm ${sender === 'ai' ? 'bg-primary/10 border-l-4 border-primary text-text-light light:text-text-dark' : 'bg-bg-card-dark light:bg-bg-card-light border-r-4 border-accent text-text-light light:text-text-dark ml-6 text-right'}`;
+            bubble.innerHTML = escapeHTML(message).replace(/\n/g, '<br>');
+            feed.appendChild(bubble);
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        // 10. EVENT LISTENERS & SETUP
+        function setupEventListeners() {
+            // Theme Toggle
+            document.getElementById('btn-toggle-theme').addEventListener('click', () => {
+                document.documentElement.classList.toggle('light');
+                State.settings.theme = document.documentElement.classList.contains('light') ? 'light' : 'dark';
+                saveStateToStorage();
+            });
+
+            // Navigation Routing
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    const view = link.getAttribute('data-view');
+                    State.currentView = view;
+                    renderAllViews();
+                });
+            });
+
+            // Goal Modal Open / Close
+            const goalModal = document.getElementById('goal-modal');
+            const openGoalModalBtn = document.getElementById('btn-create-goal');
+            const closeGoalModalBtn = document.getElementById('btn-close-goal-modal');
+            const cancelGoalModalBtn = document.getElementById('btn-cancel-goal-modal');
+            const goalForm = document.getElementById('goal-modal-form');
+
+            openGoalModalBtn.addEventListener('click', () => {
+                goalForm.reset();
+                document.getElementById('goal-id-field').value = '';
+                document.getElementById('modal-goal-title').textContent = 'Tạo Mục tiêu Mới';
+                goalModal.showModal();
+            });
+            document.getElementById('btn-add-goal').addEventListener('click', () => { // For goals view
+                goalForm.reset();
+                document.getElementById('goal-id-field').value = '';
+                document.getElementById('modal-goal-title').textContent = 'Tạo Mục tiêu Mới';
+                goalModal.showModal();
+            });
+
+            const closeGoalModal = () => goalModal.close();
+            closeGoalModalBtn.addEventListener('click', closeGoalModal);
+            cancelGoalModalBtn.addEventListener('click', closeGoalModal);
+
+            // Submit Goal
+            goalForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const goalId = document.getElementById('goal-id-field').value;
+                const title = document.getElementById('goal-title-input').value.trim();
+                const description = document.getElementById('goal-desc-input').value.trim();
+
+                if (goalId) { // Edit existing goal
+                    const goal = State.goals.find(g => g.id === goalId);
+                    if (goal) {
+                        goal.title = title;
+                        goal.description = description;
+                    }
+                } else { // New goal
+                    const newGoal = {
+                        id: generateUUID(),
+                        title,
+                        description,
+                        status: 'active',
+                        createdAt: new Date().toISOString()
+                    };
+                    State.goals.unshift(newGoal);
+
+                    // AI Breakdown & Schedule
+                    try {
+                        notifier.speak(`Đang phân rã mục tiêu "${title}" bằng AI. Vui lòng chờ trong giây lát.`);
+                        appendAIChat('ai', `Đang phân rã mục tiêu "${title}" và lên lịch trình chi tiết...`);
+                        const aiTasks = await handleAIGoalBreakdown(title, description);
+                        aiTasks.forEach(taskData => {
+                            State.tasks.push({
+                                id: generateUUID(),
+                                goalId: newGoal.id,
+                                title: taskData.title,
+                                description: taskData.description,
+                                aiInstructions: taskData.aiInstructions,
+                                estimatedDuration: taskData.estimatedDuration,
+                                priority: taskData.priority,
+                                tags: taskData.tags,
+                                scheduledTime: taskData.scheduledTime,
+                                status: 'todo',
+                                createdAt: new Date().toISOString()
+                            });
+                        });
+                        appendAIChat('ai', `Mục tiêu "${title}" đã được phân rã thành ${aiTasks.length} tác vụ và lên lịch thành công!`);
+                        notifier.speak(`Mục tiêu ${title} đã được phân rã thành các tác vụ. Hãy kiểm tra bảng Kanban hoặc lịch trình.`);
+                    } catch (aiError) {
+                        appendAIChat('ai', `⚠️ Lỗi AI phân rã mục tiêu: ${aiError.message}`);
+                        notifier.speak(`Lỗi AI phân rã mục tiêu. Vui lòng kiểm tra lại.`);
+                    }
+                }
+                saveStateToStorage();
+                goalModal.close();
+                renderAllViews();
+            });
+
+            // AI Breakdown Goal button in modal
+            document.getElementById('btn-ai-breakdown-goal').addEventListener('click', async () => {
+                const title = document.getElementById('goal-title-input').value.trim();
+                const description = document.getElementById('goal-desc-input').value.trim();
+                if (!title) {
+                    alert('Vui lòng nhập tiêu đề mục tiêu trước khi yêu cầu AI phân rã!');
+                    return;
+                }
+                try {
+                    notifier.speak(`Đang phân rã mục tiêu "${title}" bằng AI. Vui lòng chờ trong giây lát.`);
+                    appendAIChat('ai', `Đang phân rã mục tiêu "${title}" và lên lịch trình chi tiết...`);
+                    const aiTasks = await handleAIGoalBreakdown(title, description);
+                    // This button is for preview/suggestion, not saving directly
+                    // For now, just show a message in AI chat
+                    appendAIChat('ai', `AI đã phân rã mục tiêu "${title}" thành ${aiTasks.length} tác vụ. Bạn có thể lưu mục tiêu để thêm các tác vụ này.`);
+                    notifier.speak(`AI đã phân rã mục tiêu ${title} thành các tác vụ. Bạn có thể lưu mục tiêu để thêm các tác vụ này.`);
+                } catch (aiError) {
+                    appendAIChat('ai', `⚠️ Lỗi AI phân rã mục tiêu: ${aiError.message}`);
+                    notifier.speak(`Lỗi AI phân rã mục tiêu. Vui lòng kiểm tra lại.`);
+                }
+            });
+
+            // Task Modal Open / Close (for Kanban quick add)
+            const taskModal = document.getElementById('task-modal');
+            const openTaskModalBtn = document.getElementById('btn-add-kanban-task');
+            const closeTaskModalBtn = document.getElementById('btn-close-task-modal');
+            const cancelTaskModalBtn = document.getElementById('btn-cancel-task-modal');
+            const taskForm = document.getElementById('task-modal-form');
+
+            openTaskModalBtn.addEventListener('click', () => {
+                taskForm.reset();
+                document.getElementById('task-id-field').value = '';
+                document.getElementById('modal-task-title').textContent = 'Tác vụ Nhanh Mới';
+                taskModal.showModal();
+            });
+
+            const closeTaskModal = () => taskModal.close();
+            closeTaskModalBtn.addEventListener('click', closeTaskModal);
+            cancelTaskModalBtn.addEventListener('click', closeTaskModal);
+
+            // Submit Task (from Kanban quick add)
+            taskForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const taskId = document.getElementById('task-id-field').value;
+                const title = document.getElementById('task-title-input').value.trim();
+                const description = document.getElementById('task-desc-input').value.trim();
+                const dueDate = document.getElementById('task-due-date').value;
+                const priority = document.getElementById('task-priority-select').value;
+                const tagsRaw = document.getElementById('task-tags-input').value;
+                const tags = tagsRaw.split(',').map(x => x.trim()).filter(x => x.length > 0);
+
+                const newTask = {
+                    id: taskId || generateUUID(),
+                    goalId: null, // Quick tasks not linked to a goal by default
+                    title,
+                    description,
+                    aiInstructions: [], // Can be filled by AI later
+                    estimatedDuration: 60, // Default
+                    priority,
+                    tags,
+                    dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+                    scheduledTime: dueDate ? new Date(dueDate).toISOString() : null, // Default to due date for quick tasks
+                    status: 'todo',
+                    createdAt: new Date().toISOString()
+                };
+
+                if (taskId) { // Edit existing
+                    const index = State.tasks.findIndex(t => t.id === taskId);
+                    if (index !== -1) State.tasks[index] = newTask;
+                } else { // New
+                    State.tasks.unshift(newTask);
+                }
+                saveStateToStorage();
+                taskModal.close();
+                renderAllViews();
+                notifier.speak(`Đã lưu tác vụ: ${title}`);
+            });
+
+            // AI Generate Instructions for Task
+            document.getElementById('btn-ai-generate-instructions').addEventListener('click', async () => {
+                const title = document.getElementById('task-title-input').value.trim();
+                const description = document.getElementById('task-desc-input').value.trim();
+                if (!title) {
+                    alert('Vui lòng nhập tiêu đề tác vụ trước khi yêu cầu AI tạo hướng dẫn!');
+                    return;
+                }
+                try {
+                    notifier.speak(`Đang tạo hướng dẫn chi tiết cho tác vụ "${title}" bằng AI.`);
+                    appendAIChat('ai', `Đang tạo hướng dẫn chi tiết cho tác vụ "${title}"...`);
+                    const instructions = await handleAITaskInstructions(title, description);
+                    document.getElementById('task-desc-input').value = description + '\n\n' + instructions.map((inst, i) => `Bước ${i+1}: ${inst}`).join('\n');
+                    appendAIChat('ai', `AI đã tạo ${instructions.length} bước hướng dẫn chi tiết cho tác vụ "${title}".`);
+                    notifier.speak(`AI đã tạo hướng dẫn chi tiết cho tác vụ ${title}.`);
+                } catch (aiError) {
+                    appendAIChat('ai', `⚠️ Lỗi AI tạo hướng dẫn: ${aiError.message}`);
+                    notifier.speak(`Lỗi AI tạo hướng dẫn. Vui lòng kiểm tra lại.`);
+                }
+            });
+
+            // Calendar Navigation
+            document.getElementById('btn-prev-week').addEventListener('click', () => {
+                State.calendarWeekOffset--;
+                renderCalendarView();
+            });
+            document.getElementById('btn-next-week').addEventListener('click', () => {
+                State.calendarWeekOffset++;
+                renderCalendarView();
+            });
+
+            // Settings: Keys Save & Test
+            document.getElementById('btn-save-keys').addEventListener('click', () => {
+                const raw = document.getElementById('keys-input-area').value;
+                const keys = raw.split(/[\n,]/).map(k => k.trim()).filter(k => k.length > 10);
+                if (keys.length > 25) {
+                    alert('Hệ thống hỗ trợ tối đa 25 keys trong cụm xoay vòng.');
+                    return;
+                }
+                State.keys = keys;
+                State.selectedModel = document.getElementById('select-preferred-model').value;
+                saveStateToStorage();
+                rotationEngine.resetKeyHealth(); // Reset health map for new keys
+                renderKeyVisualizer();
+                alert(`Đã lưu thành công ${keys.length} API Keys vào kho lưu trữ BYOD!`);
+            });
+
+            document.getElementById('btn-test-rotation').addEventListener('click', async () => {
+                const logEl = document.getElementById('key-test-log');
+                logEl.textContent = 'Đang tiến hành ping kiểm tra xoay vòng...';
+                try {
+                    const res = await rotationEngine.queryGeminiWithFailover('Trả lời đúng 1 chữ: OK');
+                    logEl.textContent = `Thành công! Phản hồi từ mô hình: ${res.trim()} qua Key #${State.keys.indexOf(rotationEngine.getCurrentKey()) + 1}`;
+                } catch (err) {
+                    logEl.textContent = `Thất bại: ${err.message}`;
+                }
+            });
+
+            // AI Copilot Box
+            document.getElementById('ai-user-prompt').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('btn-submit-ai-prompt').click();
+                }
+            });
+            document.getElementById('btn-submit-ai-prompt').addEventListener('click', () => {
+                const input = document.getElementById('ai-user-prompt');
+                const prompt = input.value.trim();
+                if (!prompt) return;
+                input.value = '';
+                appendAIChat('user', prompt);
+                rotationEngine.queryGeminiWithFailover(prompt)
+                    .then(response => appendAIChat('ai', response))
+                    .catch(err => appendAIChat('ai', `⚠️ Lỗi AI: ${err.message}`));
+            });
+
+            document.getElementById('btn-clear-ai-history').addEventListener('click', () => {
+                document.getElementById('ai-chat-feed').innerHTML = '<div class="ai-bubble rounded-sm p-3 text-sm bg-primary/10 border-l-4 border-primary text-text-light light:text-text-dark">Chào bạn! Tôi là Trợ lý AI của Chronos. Hãy hỏi tôi bất cứ điều gì về mục tiêu hoặc tác vụ của bạn.</div>';
+            });
+
+            // Notifications & Speech Toggle
+            document.getElementById('chk-allow-voice').addEventListener('change', (e) => {
+                State.settings.speechVoice = e.target.checked;
+                saveStateToStorage();
+                notifier.speak(State.settings.speechVoice ? 'Chế độ giọng đọc AI đã kích hoạt.' : 'Đã tắt giọng đọc.');
+            });
+
+            document.getElementById('chk-allow-push').addEventListener('change', async (e) => {
+                State.settings.pushNotification = e.target.checked;
+                saveStateToStorage();
+                if (e.target.checked) {
+                    if ('Notification' in window) {
+                        const perm = await Notification.requestPermission();
+                        if (perm !== 'granted') {
+                            alert('Quyền thông báo bị từ chối!');
+                            e.target.checked = false;
+                            State.settings.pushNotification = false;
+                            saveStateToStorage();
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('btn-test-notification').addEventListener('click', () => {
+                notifier.triggerAlert('Thử nghiệm Chuông Báo', 'Hệ thống thông báo đẩy và giọng đọc thời gian thực đang hoạt động tối ưu!');
+            });
+
+            // PWA Install Prompt Handler
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                State.deferredPrompt = e;
+                const installBtn = document.getElementById('btn-install-pwa');
+                installBtn.classList.remove('hidden'); // Make button visible
+                installBtn.addEventListener('click', () => {
+                    State.deferredPrompt.prompt();
+                    State.deferredPrompt.userChoice.then(() => {
+                        State.deferredPrompt = null;
+                        installBtn.classList.add('hidden'); // Hide after prompt
+                    });
+                });
+            });
+        }
+
+        // 11. INLINE SERVICE WORKER CREATION (FOR ZERO-DEPENDENCY SPA PWA)
+        function registerSelfContainedPWA() {
+            if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+                const swCode = `
+                    const CACHE_NAME = 'chronos-ai-cache-v1';
+                    const urlsToCache = [
+                        '/',
+                        'index.html',
+                        'https://cdn.tailwindcss.com',
+                        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css',
+                        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap',
+                        'https://fonts.gstatic.com'
+                    ];
+
+                    self.addEventListener('install', (e) => {
+                        e.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => cache.addAll(urlsToCache))
+                                .then(() => self.skipWaiting())
+                        );
+                    });
+
+                    self.addEventListener('activate', (e) => {
+                        e.waitUntil(
+                            caches.keys().then(cacheNames => {
+                                return Promise.all(
+                                    cacheNames.map(cacheName => {
+                                        if (cacheName !== CACHE_NAME) {
+                                            return caches.delete(cacheName);
+                                        }
+                                    })
+                                );
+                            }).then(() => self.clients.claim())
+                        );
+                    });
+
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.match(e.request).then(response => {
+                                return response || fetch(e.request);
+                            })
+                        );
+                    });
+
+                    self.addEventListener('message', (e) => {
+                        if (e.data && e.data.type === 'TRIGGER_NOTIFICATION') {
+                            self.registration.showNotification(e.data.title, {
+                                body: e.data.body,
+                                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">⚡</text></svg>',
+                                vibrate: [200, 100, 200]
+                            });
+                        }
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => {
+                    console.log('PWA ServiceWorker Notice:', err.message);
+                });
+            }
+        }
+
+        // Helper sanitize HTML
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g,
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
+        // Render all views based on currentView state
+        function renderAllViews() {
+            document.getElementById('focus-view').classList.toggle('hidden', State.currentView !== 'focus');
+            document.getElementById('kanban-view').classList.toggle('hidden', State.currentView !== 'kanban');
+            document.getElementById('calendar-view-container').classList.toggle('hidden', State.currentView !== 'calendar');
+            document.getElementById('goals-view').classList.toggle('hidden', State.currentView !== 'goals');
+            document.getElementById('settings-view').classList.toggle('hidden', State.currentView !== 'settings');
+
+            // Update active navigation link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('data-view') === State.currentView) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            switch (State.currentView) {
+                case 'focus':
+                    renderFocusView();
+                    break;
+                case 'kanban':
+                    renderKanbanBoard();
+                    break;
+                case 'calendar':
+                    renderCalendarView();
+                    break;
+                case 'goals':
+                    renderGoalManagementView();
+                    break;
+                case 'settings':
+                    // Populate settings fields
+                    document.getElementById('keys-input-area').value = State.keys.join('\n');
+                    document.getElementById('select-preferred-model').value = State.selectedModel;
+                    document.getElementById('chk-allow-push').checked = State.settings.pushNotification;
+                    document.getElementById('chk-allow-voice').checked = State.settings.speechVoice;
+                    renderKeyVisualizer();
+                    break;
+            }
+        }
+
+        // Render Key Visualizer (for settings and sidebar)
+        function renderKeyVisualizer() {
+            const container = document.getElementById('key-grid-visualizer');
+            const meter = document.getElementById('key-health-meter');
+            const badge = document.getElementById('active-key-index-badge');
+            container.innerHTML = '';
+
+            const totalSlots = 25;
+            const actualKeysCount = State.keys.length;
+            const availableKeysCount = rotationEngine.getAvailableKeys().length;
+
+            for (let i = 0; i < totalSlots; i++) {
+                const pill = document.createElement('div');
+                pill.className = 'key-pill text-center p-0.5 rounded-sm bg-white/5 text-xs font-mono border border-transparent';
+
+                if (i < actualKeysCount) {
+                    const key = State.keys[i];
+                    const keyHealth = rotationEngine.healthMap.get(key);
+                    if (keyHealth && keyHealth.status === 'exhausted') {
+                        pill.classList.add('border-danger', 'text-danger', 'opacity-50', 'line-through');
+                    } else if (key === rotationEngine.getCurrentKey()) { // Highlight current active key
+                        pill.classList.add('border-accent', 'bg-accent/20', 'text-sky-300', 'font-bold');
+                    }
+                    pill.textContent = `K${i + 1}`;
+                } else {
+                    pill.classList.add('opacity-20');
+                    pill.textContent = `K${i + 1}`;
+                }
+                container.appendChild(pill);
+            }
+
+            if (actualKeysCount > 0) {
+                badge.textContent = `Key #${State.keys.indexOf(rotationEngine.getCurrentKey()) + 1}/${actualKeysCount} (${availableKeysCount} khả dụng)`;
+                meter.style.width = `${Math.min(100, (availableKeysCount / actualKeysCount) * 100)}%`;
+                meter.style.background = availableKeysCount === 0 ? 'var(--danger)' : 'linear-gradient(90deg, var(--accent), var(--primary))';
+            } else {
+                badge.textContent = `Chưa nhập Key`;
+                meter.style.width = '0%';
+                meter.style.background = 'var(--danger)';
+            }
+        }
+
+
+        // SYSTEM BOOTSTRAP
+        document.addEventListener('DOMContentLoaded', () => {
+            loadInitialState();
+            initPomodoro();
+            setupEventListeners();
+            registerSelfContainedPWA();
+
+            // Apply theme based on settings
+            if (State.settings.theme === 'light') {
+                document.documentElement.classList.add('light');
+            } else {
+                document.documentElement.classList.remove('light');
+            }
+
+            renderAllViews(); // Render initial view (Focus)
+        });
+    </script>
+</body>
+</html>
