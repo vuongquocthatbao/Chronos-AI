@@ -614,12 +614,12 @@ AIzaSyC..."></textarea>
                     }
 
                     const modelName = State.selectedModel;
-                    let targetEndpointModel = 'gemini-1.5-flash'; // Default to a stable model
-                    if (modelName.includes('3.8')) targetEndpointModel = 'gemini-1.5-flash'; // Using 1.5-flash as a proxy for 3.8 for now
-                    else if (modelName.includes('3.7')) targetEndpointModel = 'gemini-1.5-flash';
-                    else if (modelName.includes('3.6')) targetEndpointModel = 'gemini-1.5-flash';
-                    else if (modelName.includes('3.5')) targetEndpointModel = 'gemini-1.5-pro'; // Pro for reasoning
-                    else if (modelName.includes('3-flash-preview')) targetEndpointModel = 'gemini-1.5-flash'; // Placeholder for preview
+                    let targetEndpointModel = 'gemini-3.8-flash'; // Default to a stable model
+                    if (modelName.includes('3.8')) targetEndpointModel = 'gemini-3.8-flash'; // Using 1.5-flash as a proxy for 3.8 for now
+                    else if (modelName.includes('3.7')) targetEndpointModel = 'gemini-3.7-flash';
+                    else if (modelName.includes('3.6')) targetEndpointModel = 'gemini-3.6-flash';
+                    else if (modelName.includes('3.5')) targetEndpointModel = 'gemini-3.5-flash'; // Pro for reasoning
+                    else if (modelName.includes('3-flash-preview')) targetEndpointModel = 'gemini-3-flash-preview'; // Placeholder for preview
 
                     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${targetEndpointModel}:generateContent?key=${activeKey}`;
 
